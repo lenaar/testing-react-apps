@@ -88,9 +88,12 @@ test(`omitting the username results in an error`, async () => {
 })
 
 test(`get unknown server error 500 and display the error message`, async () => {
+  // to point out it is the same message from api which displays in alert
+  const testErrorMessage = 'Smth went wrong...'
+
   server.use(
     rest.post('https://auth-provider.example.com/api/login', (req, res, ctx) =>
-      res(ctx.status(500), ctx.json({message: 'Smth went wrong...'})),
+      res(ctx.status(500), ctx.json({message: testErrorMessage})),
     ),
   )
 
@@ -107,7 +110,5 @@ test(`get unknown server error 500 and display the error message`, async () => {
   // 📜 https://testing-library.com/docs/dom-testing-library/api-async#waitforelementtoberemoved
   await waitForElementToBeRemoved(() => screen.getByLabelText(/loading/i))
 
-  expect(screen.getByRole('alert').textContent).toMatchInlineSnapshot(
-    `"Smth went wrong..."`,
-  )
+  expect(screen.getByRole('alert')).toHaveTextContent(testErrorMessage)
 })
