@@ -6,6 +6,7 @@ import * as React from 'react'
 import {render, screen, waitForElementToBeRemoved} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {build, fake} from '@jackfranklin/test-data-bot'
+import {rest} from 'msw'
 import {setupServer} from 'msw/node'
 import Login from '../../components/login-submission'
 import {handlers} from '../../test/server-handlers'
@@ -24,6 +25,7 @@ const server = setupServer(...handlers)
 
 beforeAll(() => server.listen())
 afterAll(() => server.close())
+afterEach(() => server.resetHandlers())
 
 test(`logging in displays the user's username`, async () => {
   render(<Login />)
@@ -82,5 +84,30 @@ test(`omitting the username results in an error`, async () => {
   expect(screen.getByText(/username required/i)).toBeInTheDocument()
   expect(screen.getByRole('alert').textContent).toMatchInlineSnapshot(
     `"username required"`,
+  )
+})
+
+test(`get unknown server error 500 and display the error message`, async () => {
+  server.use(
+    rest.post('https://auth-provider.example.com/api/login', (req, res, ctx) =>
+      res(ctx.status(500), ctx.json({message: 'Smth went wrong...'})),
+    ),
+  )
+
+  render(<Login />)
+  const {password} = buildLoginForm()
+
+  await userEvent.type(screen.getByLabelText(/password/i), password)
+  // start making the request!
+  await userEvent.click(screen.getByRole('button', {name: /submit/i}))
+
+  // as soon as the user hits submit, we render a spinner to the screen. That
+  // spinner has an aria-label of "loading" for accessibility purposes, so
+  // 🐨 wait for the loading spinner to be removed using waitForElementToBeRemoved
+  // 📜 https://testing-library.com/docs/dom-testing-library/api-async#waitforelementtoberemoved
+  await waitForElementToBeRemoved(() => screen.getByLabelText(/loading/i))
+
+  expect(screen.getByRole('alert').textContent).toMatchInlineSnapshot(
+    `"Smth went wrong..."`,
   )
 })
