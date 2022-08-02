@@ -11,6 +11,10 @@ import Counter from '../../components/counter'
 // Luckily, it's handled for you by React Testing Library :)
 global.IS_REACT_ACT_ENVIRONMENT = true
 
+beforeEach(() => {
+  document.body.innerHTML = ''
+})
+
 test('counter increments and decrements when the buttons are clicked', () => {
   // 🐨 create a div to render your component to (💰 document.createElement)
   const container = document.createElement('div')
@@ -35,10 +39,6 @@ test('counter increments and decrements when the buttons are clicked', () => {
   // 🐨 assert the message.textContent
   act(() => decrement.click())
   expect(message.textContent).toBe('Current count: 0')
-
-  // 🐨 cleanup by removing the div from the page (💰 div.remove())
-  // 🦉 If you don't cleanup, then it could impact other tests and/or cause a memory leak
-  container.remove()
 })
 
 /* eslint no-unused-vars:0 */
