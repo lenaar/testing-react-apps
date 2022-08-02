@@ -60,10 +60,9 @@ test(`omitting the password results in an error`, async () => {
   // 📜 https://testing-library.com/docs/dom-testing-library/api-async#waitforelementtoberemoved
   await waitForElementToBeRemoved(() => screen.getByLabelText(/loading/i))
 
-  // once the login is successful, then the loading spinner disappears and
-  // we render alert
-  expect(screen.getByText(/password required/i)).toBeInTheDocument()
-  expect(screen.getByRole('alert')).toHaveTextContent(/password required/i)
+  expect(screen.getByRole('alert').textContent).toMatchInlineSnapshot(
+    `"password required"`,
+  )
 })
 
 test(`omitting the username results in an error`, async () => {
@@ -80,8 +79,8 @@ test(`omitting the username results in an error`, async () => {
   // 📜 https://testing-library.com/docs/dom-testing-library/api-async#waitforelementtoberemoved
   await waitForElementToBeRemoved(() => screen.getByLabelText(/loading/i))
 
-  // once the login is successful, then the loading spinner disappears and
-  // we render alert
   expect(screen.getByText(/username required/i)).toBeInTheDocument()
-  expect(screen.getByRole('alert')).toHaveTextContent(/username required/i)
+  expect(screen.getByRole('alert').textContent).toMatchInlineSnapshot(
+    `"username required"`,
+  )
 })
